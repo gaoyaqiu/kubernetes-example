@@ -24,7 +24,10 @@ Vagrant.configure("2") do |config|
    vb.customize [ "guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000 ]
   end
 
-  $num_instances = 1
+  # 创建两台master、两台node机器
+  $num_instances = 4
+  # 机器名称
+  $name = ''
 
   # curl https://discovery.etcd.io/new?size=3
 
@@ -62,9 +65,17 @@ Vagrant.configure("2") do |config|
 
     #config.ssh.private_key_path = '~/.ssh/id_rsa'
     #config.ssh.forward_agent = true
-    config.vm.define "node#{i}" do |node|
+
+    # 设置两台master和node机器名称
+    if i == 1 or i == 2
+      $name = "master%02d" % i
+    else
+      $name = "node%02d" % i
+    end
+
+    config.vm.define $name do |node|
     node.vm.box = "centos/7"
-    node.vm.hostname = "node#{i}"
+    node.vm.hostname = $name
     ip = "172.17.8.#{i+100}"
     node.vm.network "private_network", ip: ip
     node.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)", auto_config: true
@@ -77,7 +88,7 @@ Vagrant.configure("2") do |config|
   #   # Customize the amount of memory on the VM:
       vb.memory = "3072"
       vb.cpus = 1
-      vb.name = "node#{i}"
+      vb.name = $name
     end
 
     node.vm.provision "shell" do |s|
@@ -105,9 +116,10 @@ EOF
 sysctl -p
 echo 'set host name resolution'
 cat >> /etc/hosts <<EOF
-172.17.8.101 node1
-172.17.8.102 node2
-172.17.8.103 node3
+172.17.8.101 master01
+172.17.8.102 master02
+172.17.8.103 node01
+172.17.8.104 node02
 EOF
         cat /etc/hosts
         echo 'set nameserver'
@@ -124,12 +136,27 @@ EOF
         fi
         usermod -aG docker vagrant
         rm -rf ~/.docker/
-        yum install -y docker.x86_64
-cat > /etc/docker/daemon.json <<EOF
+        echo '安装docker'
+        yum install -y yum-utils device-mapper-persistent-data lvm2
+        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        yum install -y docker-ce
+        mkdir -p /etc/docker
+
+cat << EOF > /etc/docker/daemon.json
 {
-  "registry-mirrors" : ["http://2595fda0.m.daocloud.io"]
+"registry-mirrors": [ "http://adf24e46.m.daocloud.io"]
 }
 EOF
+
+        echo 'enable docker'
+        systemctl enable docker
+        systemctl start docker
+        docker info
+      
+        echo '安装docker-compose'
+        curl -L "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+
       SHELL
       end
     end

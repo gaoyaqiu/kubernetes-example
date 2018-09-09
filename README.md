@@ -1,2 +1,2 @@
 # kubernetes-example
-记录使用kubernetes一些脚本
+记录学习kubernetes时的一些脚本
