@@ -38,7 +38,7 @@ cat > ca-csr.json <<EOF
 }
 EOF
 
-cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+cfssl gencert -initca ca-csr.json | cfssljson -bare ca
 
 #-----------------------
 
