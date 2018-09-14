@@ -1,14 +1,11 @@
 #!/bin/bash
 
 ETCD_ENDPOINTS=${1:-"http://127.0.0.1:2379"}
-
 cat <<EOF >/opt/kubernetes/cfg/flanneld
-
-FLANNEL_OPTIONS="--etcd-endpoints=${ETCD_ENDPOINTS} \
+FLANNEL_OPTIONS="--etcd-endpoints=https://172.17.8.101:2379,https://172.17.8.103:2379,https://172.17.8.104:2379 \
 -etcd-cafile=/opt/kubernetes/ssl/ca.pem \
 -etcd-certfile=/opt/kubernetes/ssl/server.pem \
 -etcd-keyfile=/opt/kubernetes/ssl/server-key.pem"
-
 EOF
 
 cat <<EOF >/usr/lib/systemd/system/flanneld.service
@@ -30,7 +27,6 @@ WantedBy=multi-user.target
 EOF
 
 cat <<EOF >/usr/lib/systemd/system/docker.service
-
 [Unit]
 Description=Docker Application Container Engine
 Documentation=https://docs.docker.com
