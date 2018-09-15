@@ -7,11 +7,11 @@ EOF
 #----------------------
 
 # 创建kubelet bootstrapping kubeconfig 
-export KUBE_APISERVER="https://192.168.0.211:6443"
+export KUBE_APISERVER="https://172.17.8.101:6443"
 
 # 设置集群参数
 kubectl config set-cluster kubernetes \
-  --certificate-authority=./ca.pem \
+  --certificate-authority=/opt/kubernetes/ssl/ca.pem \
   --embed-certs=true \
   --server=${KUBE_APISERVER} \
   --kubeconfig=bootstrap.kubeconfig
