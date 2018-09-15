@@ -3,8 +3,6 @@
 MASTER_ADDRESS=${1:-"127.0.0.1"}
 
 cat <<EOF >/opt/kubernetes/cfg/kube-controller-manager
-
-
 KUBE_CONTROLLER_MANAGER_OPTS="--logtostderr=true \\
 --v=4 \\
 --master=${MASTER_ADDRESS}:8080 \\

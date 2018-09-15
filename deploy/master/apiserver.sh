@@ -1,7 +1,7 @@
 #!/bin/bash
 
-MASTER_ADDRESS=${1:-"192.168.1.195"}
-ETCD_SERVERS=${2:-"http://127.0.0.1:2379"}
+MASTER_ADDRESS=${1:-"172.17.8.101"}
+ETCD_SERVERS=${2:-"https://172.17.8.101:2379,https://172.17.8.103:2379,https://172.17.8.104:2379"}
 
 cat <<EOF >/opt/kubernetes/cfg/kube-apiserver
 

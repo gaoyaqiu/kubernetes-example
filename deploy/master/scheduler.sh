@@ -3,12 +3,10 @@
 MASTER_ADDRESS=${1:-"127.0.0.1"}
 
 cat <<EOF >/opt/kubernetes/cfg/kube-scheduler
-
 KUBE_SCHEDULER_OPTS="--logtostderr=true \\
 --v=4 \\
---master=${MASTER_ADDRESS}:8080 \\
+--master=127.0.0.1:8080 \\
 --leader-elect"
-
 EOF
 
 cat <<EOF >/usr/lib/systemd/system/kube-scheduler.service

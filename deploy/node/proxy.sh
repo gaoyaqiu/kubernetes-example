@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NODE_ADDRESS=${1:-"192.168.1.200"}
+NODE_ADDRESS=${1:-"172.17.8.103"}
 
 cat <<EOF >/opt/kubernetes/cfg/kube-proxy
 
