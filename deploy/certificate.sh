@@ -31,7 +31,7 @@ cat > ca-csr.json <<EOF
             "C": "CN",
             "L": "ShangHai",
             "ST": "ShangHai",
-      	    "O": "k8s",
+            "O": "k8s",
             "OU": "System"
         }
     ]
