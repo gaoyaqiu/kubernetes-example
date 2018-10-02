@@ -15,7 +15,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
   namespace: ingress-nginx
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: default-http-backend
@@ -257,7 +257,7 @@ metadata:
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: ingress-nginx
@@ -282,16 +282,9 @@ spec:
             - --configmap=$(POD_NAMESPACE)/nginx-configuration
             - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
             - --udp-services-configmap=$(POD_NAMESPACE)/udp-services
-            - --publish-service=$(POD_NAMESPACE)/ingress-nginx
+ #           - --publish-service=$(POD_NAMESPACE)/ingress-nginx
             - --annotations-prefix=nginx.ingress.kubernetes.io
-          securityContext:
-            capabilities:
-                drop:
-                - ALL
-                add:
-                - NET_BIND_SERVICE
-            # www-data -> 33
-            runAsUser: 33
+            - --apiserver-host=http://172.17.8.101:8080
           env:
             - name: POD_NAME
               valueFrom:
