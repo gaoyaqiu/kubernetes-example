@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-wp-config
+data:
+  default.conf: |-
+    server {
+        listen 80;
+        server_name localhost;
+        root /usr/share/nginx/html;
+        index index.html index.php;
+
+        location ~ \.php$ {
+            root /usr/share/nginx/html;
+            fastcgi_pass wordpress-php:9000;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            include fastcgi_params;
+            fastcgi_connect_timeout 60s;
+            fastcgi_read_timeout 300s;
+            fastcgi_send_timeout 300s;
+        }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress-nginx
+  labels:
+    app: wordpress
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: wordpress-nginx
+    tier: frontend
+  type: NodePort
+  sessionAffinity: ClientIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wp-pvc02
+  labels:
+    app: wordpress
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress-nginx
+  labels:
+    app: wordpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wordpress-nginx
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: wordpress-nginx
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+          name: wordpress
+        volumeMounts:
+        - name: wordpress-persistent-storage
+          mountPath: /usr/share/nginx/html
+        - name: config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: wp-pvc02
+      - name: config
+        configMap:
+          name: nginx-wp-config

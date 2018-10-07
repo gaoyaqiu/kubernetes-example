@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
     node.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)", auto_config: true
       
     node.vm.provider "virtualbox" do |vb|
-      vb.memory = "1024"
+      vb.memory = "512"
       vb.cpus = 1
       vb.name = name
     end
