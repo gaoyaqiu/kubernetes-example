@@ -88,7 +88,7 @@ EOF
           fi
           usermod -aG docker vagrant
           rm -rf ~/.docker/
-          echo '安装docker'
+          echo 'install docker'
           yum install -y yum-utils device-mapper-persistent-data lvm2
           yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
           yum install -y docker-ce
@@ -128,7 +128,7 @@ $node_instances = {
 	"node02"=>"172.17.8.104"
 }
 
-# 比较坑，ruby没法通过多线程并行执行，慢慢装吧
+# ruby多线程不好用，不支持并行执行，慢慢装吧
 createMaster
 createNode
 
