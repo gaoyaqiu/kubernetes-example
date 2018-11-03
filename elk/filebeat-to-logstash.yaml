@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+data:
+  filebeat.yml: |-
+    filebeat.prospectors:
+      - type: log
+        paths:
+          - /data/nfs/logs/www-nginx/*.log
+        tags: ["nginx"]
+        fields_under_root: true
+        fields:
+          level: info
+
+    processors:
+      - drop_fields:
+          fields: ["beat.name", "beat.version", "offset", "prospector.type"]
+
+    output.logstash:
+      hosts: ['172.17.8.102:5044']
+
+---
+
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: filebeat
+  labels:
+    logs: filebeat
+spec:
+  template:
+    metadata:
+      labels:
+        logs: filebeat
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: filebeat
+        image: docker.elastic.co/beats/filebeat:6.1.1
+        args: [
+          "-c", "/usr/share/filebeat.yml",
+          "-e",
+        ]
+        resources:
+          limits:
+            memory: 500Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: config
+          mountPath: /usr/share/filebeat.yml
+          subPath: filebeat.yml
+        - name: data
+          mountPath: /usr/share/filebeat/data
+        - name: app-logs
+          mountPath: /data/nfs/logs
+        - name: timezone
+          mountPath: /etc/localtime
+
+      volumes:
+      - name: config
+        configMap:
+          name: filebeat-config
+      - name: data
+        hostPath:
+          path: /tmp
+      - name: app-logs
+        hostPath:
+          path: /data/nfs/logs
+      - name: timezone
+        hostPath:
+          path: /etc/localtime

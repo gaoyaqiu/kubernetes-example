@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: www-nginx
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: www-nginx
+---
+apiVersion: apps/v1beta2 
+kind: Deployment
+metadata:
+  name: www-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: www-nginx
+  template:
+    metadata:
+      labels:
+        app: www-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /var/log/nginx
+          name: nginx-log
+        - mountPath: /etc/localtime
+          name: timezone
+          
+      volumes:
+      - name: nginx-log
+        hostPath:
+          path: /data/hostpath/logs/www-nginx
+          type: Directory
+      - name: timezone
+        hostPath:
+          path: /etc/localtime
